@@ -26,7 +26,7 @@ describe('a AddedThread entities', () => {
   it('should create addedThread object correctly', () => {
     // Arrange
     const payload = {
-      id: 'thread-h_W1Plfpj0TY7wyT2PUPX',
+      id: 'thread-123',
       title: 'dicoding',
       owner: 'user-123',
     };
