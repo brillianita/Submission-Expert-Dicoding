@@ -16,7 +16,7 @@ describe('a AddedThread entities', () => {
     // Arrange
     const payload = {
       id: 123,
-      title: 'dicoding',
+      title: 'sebuah thread',
       owner: 'user-123',
     };
 
@@ -27,7 +27,7 @@ describe('a AddedThread entities', () => {
     // Arrange
     const payload = {
       id: 'thread-123',
-      title: 'dicoding',
+      title: 'sebuah thread',
       owner: 'user-123',
     };
 
