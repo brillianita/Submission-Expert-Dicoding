@@ -31,9 +31,12 @@ describe('an AddThread entities', () => {
       owner: 'user-123',
     };
     // Action
-    const { title, body } = new AddThread(payload);
+    const newThread = new AddThread(payload);
+
     // Assert
-    expect(title).toEqual(payload.title);
-    expect(body).toEqual(payload.body);
+    expect(newThread).toBeInstanceOf(AddThread);
+    expect(newThread.title).toEqual(payload.title);
+    expect(newThread.body).toEqual(payload.body);
+    expect(newThread.owner).toEqual(payload.owner);
   });
 });

@@ -4,8 +4,8 @@ describe('a AddedThread entities', () => {
   it('should throw error when payload did not contain needed property', () => {
     // Arrange
     const payload = {
+      id: 'thread-123',
       title: 'sebuah thread',
-      body: 'isi thread',
     };
 
     // Action and Assert
