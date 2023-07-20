@@ -1,6 +1,4 @@
 const AddThreadUseCase = require('../../../../Applications/use_case/AddThreadUseCase');
-const ClientError = require('../../../../Commons/exceptions/ClientError');
-const DomainErrorTranslator = require('../../../../Commons/exceptions/DomainErrorTranslator');
 
 class ThreadsHandler {
   constructor(container) {
@@ -10,9 +8,13 @@ class ThreadsHandler {
   }
 
   async postThreadHandler(request, h) {
+    const headerAuthorization = request.headers.authorization;
+    console.log('ini authorization handler', headerAuthorization);
     const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
-    const addedThread = await addThreadUseCase.execute(request.payload);
-
+    console.log('setelah addthreadusecase');
+    console.log('request payload', request.payload);
+    const addedThread = await addThreadUseCase.execute(request.payload, headerAuthorization);
+    console.log('setelah addedThread');
     const response = h.response({
       status: 'success',
       data: {

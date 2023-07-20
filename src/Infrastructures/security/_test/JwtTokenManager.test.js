@@ -1,6 +1,7 @@
 const Jwt = require('@hapi/jwt');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const JwtTokenManager = require('../JwtTokenManager');
+const AuthenticationError = require('../../../Commons/exceptions/AuthenticationError');
 
 describe('JwtTokenManager', () => {
   describe('createAccessToken function', () => {
@@ -64,6 +65,55 @@ describe('JwtTokenManager', () => {
       await expect(jwtTokenManager.verifyRefreshToken(refreshToken))
         .resolves
         .not.toThrow(InvariantError);
+    });
+  });
+
+  describe('VerifyAccessToken', () => {
+    it('should throw invariant InvariantError when verification failed', async () => {
+      // arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const accessToken = jwtTokenManager.createAccessToken({ username: 'JohnDoe' });
+
+      // action & assert
+      await expect(jwtTokenManager.verifyAccessToken(accessToken))
+        .rejects
+        .toThrow(InvariantError);
+    });
+
+    it('should not throw InvariantError when access token verified', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const refreshToken = await jwtTokenManager.createAccessToken({ username: 'JohnDoe' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyAccessToken(refreshToken))
+        .resolves
+        .not.toThrow(InvariantError);
+    });
+  });
+
+  describe('get token from header', () => {
+    it('should return token correctly from a header', async () => {
+      // arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const header = 'Bearer token789';
+
+      // action
+      const token = await jwtTokenManager.getTokenFromHeader(header);
+
+      // assert
+      expect(token).toEqual('token789');
+    });
+
+    it('should throw error when no header is provided', async () => {
+      // arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const header = '';
+
+      // action & assert
+      await expect(jwtTokenManager.getTokenFromHeader(header))
+        .rejects
+        .toThrow(AuthenticationError);
     });
   });
 
