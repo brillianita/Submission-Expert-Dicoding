@@ -3,18 +3,17 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const ServerTestHelper = require('../../../../tests/LoginTestHelper');
-const injections = require('../../container');
+const container = require('../../container');
 const createServer = require('../createServer');
 
-describe('endpoints concerning CRUD on threads', () => {
+describe('HTTP server', () => {
+  afterAll(async () => {
+    await pool.end();
+  });
   afterEach(async () => {
     await UsersTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
-  });
-
-  afterAll(async () => {
-    await pool.end();
   });
 
   describe('when POST /threads', () => {
@@ -26,11 +25,10 @@ describe('endpoints concerning CRUD on threads', () => {
         body: 'isi thread',
       };
 
-      const server = await createServer(injections);
+      const server = await createServer(container);
 
       /* add user and gain access token */
       const { accessToken } = await ServerTestHelper.getToken({ server });
-      console.log('ini accessToken', accessToken);
       // action
       const response = await server.inject({
         method: 'POST',
@@ -50,6 +48,81 @@ describe('endpoints concerning CRUD on threads', () => {
       expect(responseJson.data.addedThread.id).toBeDefined();
       expect(responseJson.data.addedThread.title).toBeDefined();
       expect(responseJson.data.addedThread.owner).toBeDefined();
+    });
+
+    it('should response 400 when request payload not contain needed property', async () => {
+      // Arrange
+      const requestPayload = {
+        title: 'sebuah thread',
+      };
+      const server = await createServer(container);
+
+      /* add user and gain access token */
+      const { accessToken } = await ServerTestHelper.getToken({ server });
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada');
+    });
+
+    it('should response 400 when request payload did not meet data type specification', async () => {
+      // Arrange
+      const requestPayload = {
+        title: [],
+        body: 123,
+        owner: true,
+      };
+      const server = await createServer(container);
+
+      /* add user and gain access token */
+      const { accessToken } = await ServerTestHelper.getToken({ server });
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: requestPayload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena tipe data tidak sesuai');
+    });
+
+    it('should response 401 when no access token provided', async () => {
+      // Arrange
+      const requestPayload = {
+        title: 'sebuah thread',
+        body: 'isi thread',
+      };
+      const server = await createServer(container);
+
+      // Action
+      const response = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: requestPayload,
+      });
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('access token tidak ada');
     });
   });
 });
