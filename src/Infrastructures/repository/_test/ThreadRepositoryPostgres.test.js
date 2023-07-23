@@ -30,27 +30,23 @@ describe('ThreadRepositoryPostgres', () => {
         await UsersTableTestHelper.addUser({
           id: 'user-123',
           username: 'dicoding',
-          password: 'secret_password',
+          password: 'secret',
           fullname: 'Dicoding Indonesia',
         });
 
         /* arranging for mocks and stubs for thread repository */
         const fakeThreadIdGenerator = (x = 10) => '123';
-        function fakeDateGenerator() {
-          this.toISOString = () => '2021';
-        }
 
         /* arranging for thread repository */
         const newThread = new AddThread({
-          title: 'lorem ipsum',
-          body: 'dolor sit amet',
+          title: 'sebuah thread',
+          body: 'isi thread',
           owner: 'user-123',
         });
 
         const threadRepositoryPostgres = new ThreadRepositoryPostgres(
           pool,
           fakeThreadIdGenerator,
-          fakeDateGenerator,
         );
 
         // action
@@ -60,7 +56,7 @@ describe('ThreadRepositoryPostgres', () => {
         const threads = await ThreadsTableTestHelper.findThreadById(addedThread.id);
         expect(addedThread).toStrictEqual(new AddedThread({
           id: `thread-${fakeThreadIdGenerator()}`,
-          title: 'lorem ipsum',
+          title: 'sebuah thread',
           owner: 'user-123',
         }));
         expect(threads).toBeDefined();

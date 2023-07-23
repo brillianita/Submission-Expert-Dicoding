@@ -122,7 +122,7 @@ describe('HTTP server', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(401);
       expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('access token tidak ada');
+      expect(responseJson.message).toEqual('Missing authentication');
     });
   });
 });

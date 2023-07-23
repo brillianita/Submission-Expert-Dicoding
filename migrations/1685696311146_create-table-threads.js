@@ -18,6 +18,10 @@ exports.up = (pgm) => {
       type: 'TEXT',
       notNull: true,
     },
+    date: {
+      type: 'TEXT',
+      notNull: true,
+    },
   });
   pgm.addConstraint(
     'threads',

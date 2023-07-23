@@ -36,7 +36,7 @@ class JwtTokenManager extends AuthenticationTokenManager {
 
   async getTokenFromHeader(header) {
     if (!header) {
-      throw new AuthenticationError('access token tidak ada');
+      throw new AuthenticationError('Missing authentication');
     }
     const token = header.replace(/^Bearer\s+/, '');
     return token;
