@@ -28,22 +28,6 @@ describe('CommentRepositoryPostgres', () => {
   });
 
   describe('addComment function', () => {
-    // it('addComment function should throw NotFoundError when thread not available', async () => {
-    //   // Arrange
-
-    //   // addComment
-    //   const payload = {
-    //     content: 'isi comment',
-    //     threadId: 'thread-1234',
-    //     owner: 'user-123',
-    //   };
-    //   const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
-
-    //   // Assert
-    // eslint-disable-next-line max-len
-    //   await expect(threadRepositoryPostgres.getDetailThread(payload.threadId)).rejects.toThrowError(NotFoundError);
-    // });
-
     it('should create new comment and return added comment correctly', async () => {
       // Arrange
 
@@ -99,6 +83,79 @@ describe('CommentRepositoryPostgres', () => {
         content: 'isi comment',
         owner: 'user-123',
       }));
+    });
+  });
+
+  describe('isCommentExist function', () => {
+    it('should throw NotFoundError when comment doesn\'t exist', async () => {
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {}, {});
+
+      await expect(commentRepositoryPostgres.isCommentExist({ threadId: 'thread-123', commentId: 'comment-234' }))
+        .rejects.toThrowError('comment tidak ditemukan');
+    });
+
+    it('should delete comment correctly', async () => {
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-123',
+      });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
+        pool,
+        {},
+        {},
+      );
+
+      await expect(commentRepositoryPostgres.isCommentExist({ threadId: 'thread-123', commentId: 'comment-123' }))
+        .resolves.toBeUndefined();
+    });
+  });
+
+  describe('verifyCommentAccess function', () => {
+    it('should throw AuthorizationError when user doesn\'t have access', async () => {
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
+        pool,
+        {},
+        {},
+      );
+      await expect(commentRepositoryPostgres.verifyCommentAccess({
+        threadId: 'thread-123', owner: 'user-234',
+      })).rejects.toThrowError('gagal menghapus comment. Anda tidak memiliki akses');
+    });
+
+    it('should not throw error if user has authorization', async () => {
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId: 'thread-123', owner: 'user-123' });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
+        pool,
+        {},
+        {},
+      );
+      await expect(commentRepositoryPostgres.verifyCommentAccess({
+        commentId: 'comment-123', owner: 'user-123',
+      })).resolves.toBeUndefined();
+    });
+  });
+
+  describe('deleteCommentById', () => {
+    it('should delete comment by id correctly', async () => {
+      // arrange
+      const addedComment = {
+        commentId: 'comment-123',
+        threadId: 'thread-123',
+      };
+
+      await CommentsTableTestHelper.addComment({
+        id: addedComment.commentId, threadId: addedComment.threadId,
+      });
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {}, {});
+
+      // action
+      await commentRepositoryPostgres.deleteCommentById(addedComment.commentId);
+      const comment = await CommentsTableTestHelper.findCommentById('comment-123');
+
+      // assert
+      expect(comment[0].is_delete).toEqual(true);
     });
   });
 });

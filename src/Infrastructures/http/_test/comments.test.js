@@ -3,7 +3,7 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
-const ServerTestHelper = require('../../../../tests/LoginTestHelper');
+const LoginTestHelper = require('../../../../tests/LoginTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 
@@ -29,7 +29,7 @@ describe('HTTP server', () => {
       const server = await createServer(container);
 
       /* add user and gain access token */
-      const { accessToken, userId } = await ServerTestHelper.getToken({ server });
+      const { accessToken, userId } = await LoginTestHelper.getToken({ server });
       const threadId = 'thread-123';
       console.log('sebelum add thread');
       const result = await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
@@ -54,6 +54,35 @@ describe('HTTP server', () => {
       expect(responseJson.data.addedComment.id).toBeDefined();
       expect(responseJson.data.addedComment.content).toBeDefined();
       expect(responseJson.data.addedComment.owner).toBeDefined();
+    });
+  });
+
+  describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
+    it('should response 200 and delete comment', async () => {
+      // arrange
+      /* add thread payload */
+      const threadId = 'thread-123';
+      const commentId = 'comment-123';
+
+      const server = await createServer(container);
+      const { accessToken, userId } = await LoginTestHelper.getToken({ server });
+      console.log(`ini accesstoken ${accessToken} & ini userId ${userId}`);
+      await ThreadsTableTestHelper.addThread({ id: threadId, owner: userId });
+      await CommentsTableTestHelper.addComment({ id: commentId, owner: userId });
+
+      // action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
     });
   });
 });
