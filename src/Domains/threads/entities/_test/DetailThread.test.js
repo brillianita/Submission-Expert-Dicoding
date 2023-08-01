@@ -1,4 +1,4 @@
-const GetDetailThread = require('../GetDetailThread');
+const DetailThread = require('../DetailThread');
 
 describe('an GetDetailThread entity', () => {
   it('should throw error if detail thread did not contain needed property', () => {
@@ -9,7 +9,7 @@ describe('an GetDetailThread entity', () => {
     };
 
     // action and assert
-    expect(() => new GetDetailThread(detailThread)).toThrowError('DETAIL_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
+    expect(() => new DetailThread(detailThread)).toThrowError('DETAIL_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
   });
 
   it('should throw error when detail thread did not meet data type specification', () => {
@@ -22,7 +22,7 @@ describe('an GetDetailThread entity', () => {
       username: {},
       comments: 122,
     };
-    expect(() => new GetDetailThread(detailThread)).toThrowError('DETAIL_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
+    expect(() => new DetailThread(detailThread)).toThrowError('DETAIL_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
 
   it('should create DetailThread object correctly', () => {
@@ -36,7 +36,7 @@ describe('an GetDetailThread entity', () => {
       comments: [],
     };
     // Action
-    const getDetailThread = new GetDetailThread(detailThread);
+    const getDetailThread = new DetailThread(detailThread);
 
     // Assert
     expect(getDetailThread.id).toEqual(detailThread.id);

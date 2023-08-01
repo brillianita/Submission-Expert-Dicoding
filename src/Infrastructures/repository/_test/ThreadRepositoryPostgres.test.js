@@ -1,5 +1,6 @@
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const AddThread = require('../../../Domains/threads/entities/AddThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const pool = require('../../database/postgres/pool');
@@ -9,6 +10,7 @@ describe('ThreadRepositoryPostgres', () => {
   afterEach(async () => {
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -75,6 +77,45 @@ describe('ThreadRepositoryPostgres', () => {
         title: 'sebuah thread',
         owner: 'user-123',
       }));
+    });
+  });
+  describe('getRepliesByThreadId function', () => {
+    it('should return thread and comment correctly', async () => {
+      // arrange
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'User1' });
+      await UsersTableTestHelper.addUser({ id: 'user-234', username: 'User2' });
+
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', owner: 'user-123', threadId: 'thread-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-234', owner: 'user-234', threadId: 'thread-123' });
+      console.log('sebelum threadrepositorypostgres test');
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
+      console.log('setelah threadrepositorypostgres test');
+      const detailThread = await threadRepositoryPostgres.getThreadById('thread-123');
+      console.log('setelah detailThread test');
+      const expectedDetailThread = {
+        id: 'thread-123',
+        title: 'sebuah thread',
+        body: 'isi thread',
+        date: '2021-08-08T07:22:33.555Z',
+        username: 'User1',
+        comments: [
+          {
+            id: 'comment-123',
+            username: 'User1',
+            date: '2021-08-08T07:22:33.555Z',
+            content: 'isi comment',
+          },
+          {
+            id: 'comment-234',
+            username: 'User2',
+            date: '2021-08-08T07:22:33.555Z',
+            content: 'isi comment',
+          },
+        ],
+      };
+      expect(detailThread).toEqual(expectedDetailThread);
     });
   });
 });

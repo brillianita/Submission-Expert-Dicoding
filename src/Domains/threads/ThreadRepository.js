@@ -5,8 +5,8 @@ class ThreadRepository {
     throw new Error('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async getDetailThread(thread) {
-    throw new Error('THREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  async getDetailThread(threadId) {
+    throw new Error('gTHREAD_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 }
 

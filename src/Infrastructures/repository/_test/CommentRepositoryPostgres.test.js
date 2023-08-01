@@ -158,4 +158,26 @@ describe('CommentRepositoryPostgres', () => {
       expect(comment[0].is_delete).toEqual(true);
     });
   });
+
+  describe('getCommentByThreadId', () => {
+    it('should retrieve all comments from a thread', async () => {
+      const firstComment = {
+        id: 'comment-123', date: '2021-08-08T07:19:09.775Z', content: 'comment1',
+      };
+      const secondComment = {
+        id: 'comment-234', date: '2022-08-08T07:19:09.775Z', content: 'comment2',
+      };
+      await CommentsTableTestHelper.addComment(firstComment);
+      await CommentsTableTestHelper.addComment(secondComment);
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(
+        pool,
+        {},
+        {},
+      );
+
+      const commentDetails = await commentRepositoryPostgres.getCommentByThreadId('thread-123');
+      expect(commentDetails).toEqual([
+        { ...firstComment, username: 'dicoding' }, { ...secondComment, username: 'dicoding' }]);
+    });
+  });
 });

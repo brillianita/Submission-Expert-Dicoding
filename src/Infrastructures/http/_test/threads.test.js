@@ -1,8 +1,9 @@
 const pool = require('../../database/postgres/pool');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
-const ServerTestHelper = require('../../../../tests/LoginTestHelper');
+const LoginTestHelper = require('../../../../tests/LoginTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 
@@ -14,6 +15,7 @@ describe('HTTP server', () => {
     await UsersTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
   });
 
   describe('when POST /threads', () => {
@@ -28,7 +30,7 @@ describe('HTTP server', () => {
       const server = await createServer(container);
 
       /* add user and gain access token */
-      const { accessToken } = await ServerTestHelper.getToken({ server });
+      const { accessToken } = await LoginTestHelper.getToken({ server });
       // action
       const response = await server.inject({
         method: 'POST',
@@ -58,7 +60,7 @@ describe('HTTP server', () => {
       const server = await createServer(container);
 
       /* add user and gain access token */
-      const { accessToken } = await ServerTestHelper.getToken({ server });
+      const { accessToken } = await LoginTestHelper.getToken({ server });
 
       // Action
       const response = await server.inject({
@@ -86,7 +88,7 @@ describe('HTTP server', () => {
       const server = await createServer(container);
 
       /* add user and gain access token */
-      const { accessToken } = await ServerTestHelper.getToken({ server });
+      const { accessToken } = await LoginTestHelper.getToken({ server });
 
       // Action
       const response = await server.inject({
@@ -123,6 +125,33 @@ describe('HTTP server', () => {
       expect(response.statusCode).toEqual(401);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('Missing authentication');
+    });
+  });
+
+  describe('when GET /threads/{threadId}', () => {
+    it('should response 200 and retrieve thread', async () => {
+      const server = await createServer(container);
+
+      const threadId = 'thread-123';
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'User1' });
+      await UsersTableTestHelper.addUser({ id: 'user-234', username: 'User2' });
+      await ThreadsTableTestHelper.addThread({ id: threadId, owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', threadId, owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-234', threadId, owner: 'user-234' });
+
+      // action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/${threadId}`,
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      console.log('ini responseJson', responseJson);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data).toBeDefined();
+      expect(responseJson.data.thread).toBeDefined();
+      expect(responseJson.data.thread.comments).toHaveLength(2);
     });
   });
 });

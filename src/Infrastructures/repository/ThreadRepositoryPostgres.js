@@ -26,7 +26,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
 
   async getThreadById(threadId) {
     const query = {
-      text: 'SELECT id_thread FROM threads WHERE id_thread = $1',
+      text: 'SELECT t.id, t.title, t.body, t.date, u.username FROM threads AS t INNER JOIN users AS u ON t.owner = u.id WHERE t.id = $1',
       values: [threadId],
     };
 
@@ -35,7 +35,24 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     if (!result.rowCount) {
       throw new NotFoundError('thread tidak ditemukan');
     }
-    return result.rows;
+
+    const queryComment = {
+      text: 'SELECT comments.id, comments.is_delete, comments.content, comments.date, users.username FROM comments INNER JOIN users ON comments.owner = users.id WHERE comments.thread_id = $1 ORDER BY comments.date ASC',
+      values: [threadId],
+    };
+
+    const resultComment = await this._pool.query(queryComment);
+    const rowsComment = resultComment.rows;
+    const objData = rowsComment.map((obj) => (obj.is_delete === true ? {
+      ...obj,
+      content: '**komentar telah dihapus**',
+    } : obj));
+    // eslint-disable-next-line no-param-reassign
+    objData.forEach((obj) => { delete obj.is_delete; });
+    const thread = result.rows[0];
+    thread.comments = objData;
+    console.log('ini thread di js', thread);
+    return thread;
   }
 }
 
