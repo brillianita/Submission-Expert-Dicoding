@@ -45,7 +45,6 @@ describe('GetDetailThreadUseCase', () => {
 
     mockThreadRepository.getDetailThread = jest.fn()
       .mockImplementation(() => Promise.resolve(expectedDetailThread));
-
     mockCommentRepository.getCommentByThreadId = jest.fn()
       .mockImplementation(() => Promise.resolve(expectedComments));
 
@@ -56,9 +55,7 @@ describe('GetDetailThreadUseCase', () => {
 
     // action
     const useCaseResult = await getDetailThreadUseCase.execute(useCaseParam);
-
     // assert
-    console.log('ini usecase result test', useCaseResult);
     expect(useCaseResult).toEqual(new DetailThread({
       ...expectedDetailThread, comments: expectedCommentsByThread,
     }));

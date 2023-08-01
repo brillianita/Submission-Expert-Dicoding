@@ -92,7 +92,7 @@ describe('ThreadRepositoryPostgres', () => {
       console.log('sebelum threadrepositorypostgres test');
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
       console.log('setelah threadrepositorypostgres test');
-      const detailThread = await threadRepositoryPostgres.getThreadById('thread-123');
+      const detailThread = await threadRepositoryPostgres.getDetailThread('thread-123');
       console.log('setelah detailThread test');
       const expectedDetailThread = {
         id: 'thread-123',

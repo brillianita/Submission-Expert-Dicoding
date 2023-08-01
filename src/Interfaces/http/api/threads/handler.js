@@ -24,11 +24,8 @@ class ThreadsHandler {
   }
 
   async getDetailThreadHandler(request, h) {
-    console.log('sebelum panggil instance');
     const detailThread = this._container.getInstance(GetDetailThreadUseCase.name);
-    console.log('setelah panggil instance');
     const data = await detailThread.execute(request.params);
-    console.log('setelah panggil execute');
     const response = h.response({
       status: 'success',
       data: {

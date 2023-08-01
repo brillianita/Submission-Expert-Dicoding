@@ -18,6 +18,16 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const id = `comment-${this._idGenerator()}`;
     const date = this._dateGenerator();
+    const qThread = {
+      text: 'SELECT id FROM threads WHERE id = $1',
+      values: [threadId],
+    };
+
+    const rThread = await this._pool.query(qThread);
+
+    if (!rThread.rowCount) {
+      throw new NotFoundError('thread tidak ditemukan');
+    }
 
     const query = {
       text: 'INSERT INTO comments VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner',
@@ -67,7 +77,12 @@ class CommentRepositoryPostgres extends CommentRepository {
 
   async getCommentByThreadId(threadId) {
     const query = {
-      text: 'SELECT comments.id, comments.is_delete, comments.content, comments.date, users.username FROM comments INNER JOIN users ON comments.owner = users.id WHERE comments.thread_id = $1 ORDER BY comments.date ASC',
+      text: `SELECT comments.id, comments.is_delete, comments.content, comments.date, users.username,
+      CASE WHEN comments.is_delete = TRUE THEN '**komentar telah dihapus**' else comments.content END AS content
+      FROM comments
+      INNER JOIN users ON comments.owner = users.id
+      WHERE comments.thread_id = $1
+      ORDER BY users.username DESC`,
       values: [threadId],
     };
 
