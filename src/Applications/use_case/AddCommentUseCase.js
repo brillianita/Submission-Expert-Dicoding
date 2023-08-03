@@ -10,14 +10,12 @@ class AddCommentUseCase {
   }
 
   async execute(useCasePayload, useCaseParam, useCaseHeader) {
-    console.log('sebelum accesstoken');
     const accessToken = await this._authenticationTokenManager
       .getTokenFromHeader(useCaseHeader.authorization);
-    console.log('Setelah accesstoken usecase');
     await this._authenticationTokenManager.verifyAccessToken(accessToken);
     const { id: owner } = await this._authenticationTokenManager.decodePayload(accessToken);
-    // await this._threadRepository.getThreadById(useCaseParam.threadId);
-    console.log('sebelum newcomment usecase');
+    console.log('sebelum newcomment usecase', useCaseParam.threadId);
+    await this._threadRepository.getDetailThread(useCaseParam.threadId);
     const newComment = new AddComment({
       ...useCasePayload, owner, threadId: useCaseParam.threadId,
     });

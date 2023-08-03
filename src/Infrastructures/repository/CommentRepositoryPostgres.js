@@ -18,16 +18,16 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const id = `comment-${this._idGenerator()}`;
     const date = this._dateGenerator();
-    const qThread = {
-      text: 'SELECT id FROM threads WHERE id = $1',
-      values: [threadId],
-    };
+    // const qThread = {
+    //   text: 'SELECT id FROM threads WHERE id = $1',
+    //   values: [threadId],
+    // };
 
-    const rThread = await this._pool.query(qThread);
+    // const rThread = await this._pool.query(qThread);
 
-    if (!rThread.rowCount) {
-      throw new NotFoundError('thread tidak ditemukan');
-    }
+    // if (!rThread.rowCount) {
+    //   throw new NotFoundError('thread tidak ditemukan');
+    // }
 
     const query = {
       text: 'INSERT INTO comments VALUES($1, $2, $3, $4, $5) RETURNING id, content, owner',
@@ -88,13 +88,9 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     const { rows } = await this._pool.query(query);
     console.log('ini rows', rows);
-    const objData = rows.map((obj) => (obj.is_delete === true ? {
-      ...obj,
-      content: '**komentar telah dihapus**',
-    } : obj));
     // eslint-disable-next-line no-param-reassign
-    objData.forEach((obj) => { delete obj.is_delete; });
-    return objData;
+    rows.forEach((obj) => { delete obj.is_delete; });
+    return rows;
   }
 }
 

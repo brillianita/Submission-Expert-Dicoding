@@ -5,6 +5,7 @@ const AddThread = require('../../../Domains/threads/entities/AddThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
 const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 
 describe('ThreadRepositoryPostgres', () => {
   afterEach(async () => {
@@ -79,43 +80,30 @@ describe('ThreadRepositoryPostgres', () => {
       }));
     });
   });
-  describe('getRepliesByThreadId function', () => {
+  describe('getDetailThread function', () => {
     it('should return thread and comment correctly', async () => {
       // arrange
-      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'User1' });
-      await UsersTableTestHelper.addUser({ id: 'user-234', username: 'User2' });
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'User1123' });
 
       await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
-
-      await CommentsTableTestHelper.addComment({ id: 'comment-123', owner: 'user-123', threadId: 'thread-123' });
-      await CommentsTableTestHelper.addComment({ id: 'comment-234', owner: 'user-234', threadId: 'thread-123' });
-      console.log('sebelum threadrepositorypostgres test');
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {});
-      console.log('setelah threadrepositorypostgres test');
       const detailThread = await threadRepositoryPostgres.getDetailThread('thread-123');
-      console.log('setelah detailThread test');
       const expectedDetailThread = {
         id: 'thread-123',
         title: 'sebuah thread',
         body: 'isi thread',
         date: '2021-08-08T07:22:33.555Z',
-        username: 'User1',
-        comments: [
-          {
-            id: 'comment-123',
-            username: 'User1',
-            date: '2021-08-08T07:22:33.555Z',
-            content: 'isi comment',
-          },
-          {
-            id: 'comment-234',
-            username: 'User2',
-            date: '2021-08-08T07:22:33.555Z',
-            content: 'isi comment',
-          },
-        ],
+        username: 'User1123',
       };
       expect(detailThread).toEqual(expectedDetailThread);
+    });
+
+    it('should not throw NotFounderror if thread not available', async () => {
+      // Arrange
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, {}, {});
+
+      // Action & Assert
+      await expect(threadRepositoryPostgres.getDetailThread('thread-345')).rejects.toThrowError(NotFoundError);
     });
   });
 });

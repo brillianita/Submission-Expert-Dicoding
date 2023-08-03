@@ -35,8 +35,8 @@ describe('AddCommentUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
     // Mocking needed function
-    // mockThreadRepository.getThreadById = jest.fn()
-    //   .mockImplementation(() => Promise.resolve());
+    mockThreadRepository.getDetailThread = jest.fn()
+      .mockImplementation(() => Promise.resolve());
     mockCommentRepository.addComment = jest.fn()
       .mockImplementation(() => Promise.resolve(mockAddedComment));
     mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
@@ -69,6 +69,7 @@ describe('AddCommentUseCase', () => {
     expect(mockAuthenticationTokenManager.getTokenFromHeader).toBeCalledWith(useCaseHeader.authorization);
     expect(mockAuthenticationTokenManager.verifyAccessToken()).resolves.toBeUndefined();
     expect(mockAuthenticationTokenManager.decodePayload).toBeCalledWith(token);
+    expect(mockThreadRepository.getDetailThread).toBeCalledWith(useCaseParam.threadId);
     expect(mockCommentRepository.addComment).toBeCalledWith(new AddComment({
       content: useCasePayload.content,
       threadId: useCaseParam.threadId,
