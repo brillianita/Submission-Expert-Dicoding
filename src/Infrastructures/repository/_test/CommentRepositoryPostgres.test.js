@@ -43,13 +43,13 @@ describe('CommentRepositoryPostgres', () => {
       // function fakeDateGenerator() {
       //   this.toISOString = () => '202021-08-08T07:22:33.555Z21';
       // }
-      const fakeDateGenerator = () => '202021-08-08T07:22:33.555Z21';
+      // const fakeDateGenerator = () => '202021-08-08T07:22:33.555Z21';
       const commentRepositoryPostgres = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        fakeDateGenerator,
+        // fakeDateGenerator,
       );
-      console.log('ini date di test', fakeDateGenerator);
+      // console.log('ini date di test', fakeDateGenerator);
       // Action
       await commentRepositoryPostgres.addComment(addComment);
 
@@ -92,11 +92,11 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       const fakeIdGenerator = () => '123'; // stub!
-      const fakeDateGenerator = () => '202021-08-08T07:22:33.555Z21';
+      // const fakeDateGenerator = () => '202021-08-08T07:22:33.555Z21';
       const commentRepositoryPostgres = new CommentRepositoryPostgres(
         pool,
         fakeIdGenerator,
-        fakeDateGenerator,
+        // fakeDateGenerator,
       );
       // Action
       const addedComment = await commentRepositoryPostgres.addComment(addComment);
@@ -198,10 +198,10 @@ describe('CommentRepositoryPostgres', () => {
   describe('getCommentByThreadId', () => {
     it('should retrieve all comments from a thread', async () => {
       const firstComment = {
-        id: 'comment-1123', date: '2021-08-08T07:19:09.775Z', content: 'comment1',
+        id: 'comment-1123', date: '2021-08-08T07:19:09.775Z', content: 'comment1', is_delete: false,
       };
       const secondComment = {
-        id: 'comment-234', date: '2022-08-08T07:19:09.775Z', content: 'comment2',
+        id: 'comment-234', date: '2022-08-08T07:19:10.775Z', content: 'comment2', is_delete: false,
       };
       await CommentsTableTestHelper.addComment(firstComment);
       await CommentsTableTestHelper.addComment(secondComment);

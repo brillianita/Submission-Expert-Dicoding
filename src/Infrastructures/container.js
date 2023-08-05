@@ -2,9 +2,6 @@
 
 const { createContainer } = require('instances-container');
 
-// internal js modules
-const date = Date;
-
 // external agency
 const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
@@ -111,9 +108,6 @@ container.register([
         },
         {
           concrete: nanoid,
-        },
-        {
-          concrete: date,
         },
       ],
     },

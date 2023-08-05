@@ -4,11 +4,10 @@ const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 
 class CommentRepositoryPostgres extends CommentRepository {
-  constructor(pool, idGenerator, dateGenerator) {
+  constructor(pool, idGenerator) {
     super();
     this._pool = pool;
     this._idGenerator = idGenerator;
-    this._dateGenerator = dateGenerator;
   }
 
   async addComment(addComment) {
@@ -17,7 +16,8 @@ class CommentRepositoryPostgres extends CommentRepository {
     } = addComment;
 
     const id = `comment-${this._idGenerator()}`;
-    const date = this._dateGenerator();
+    // const date = this._dateGenerator();
+    const date = new Date().toISOString();
     // const qThread = {
     //   text: 'SELECT id FROM threads WHERE id = $1',
     //   values: [threadId],
@@ -77,19 +77,16 @@ class CommentRepositoryPostgres extends CommentRepository {
 
   async getCommentByThreadId(threadId) {
     const query = {
-      text: `SELECT comments.id, comments.is_delete, comments.content, comments.date, users.username,
-      CASE WHEN comments.is_delete = TRUE THEN '**komentar telah dihapus**' else comments.content END AS content
+      text: `SELECT comments.id, comments.content, comments.date, comments.is_delete, users.username
       FROM comments
       INNER JOIN users ON comments.owner = users.id
       WHERE comments.thread_id = $1
-      ORDER BY users.username DESC`,
+      ORDER BY comments.date ASC`,
       values: [threadId],
     };
 
     const { rows } = await this._pool.query(query);
     console.log('ini rows', rows);
-    // eslint-disable-next-line no-param-reassign
-    rows.forEach((obj) => { delete obj.is_delete; });
     return rows;
   }
 }
