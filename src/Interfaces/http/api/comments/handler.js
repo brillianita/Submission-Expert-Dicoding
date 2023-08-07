@@ -10,14 +10,16 @@ class CommentsHandler {
   }
 
   async postCommentHandler(request, h) {
-    const headerAuthorization = request.headers.authorization;
+    console.log('ini request', request);
+    console.log('ini request', request.auth.credentials);
+    console.log('ini request', request.payload);
+    const { id: owner } = request.auth.credentials;
     const addCommentUseCase = this._container.getInstance(AddCommentUseCase.name);
     const addedComment = await addCommentUseCase.execute(
       request.payload,
       request.params,
-      request.headers,
+      owner,
     );
-    console.log('setelah addedThread');
     const response = h.response({
       status: 'success',
       data: {
@@ -29,11 +31,11 @@ class CommentsHandler {
   }
 
   async deleteCommentHandler(request, h) {
+    const { id: owner } = request.auth.credentials;
     const deleteCommentUseCase = this._container.getInstance(DeleteCommentUseCase.name);
-    console.log('ini params handler', request.params);
     await deleteCommentUseCase.execute(
       request.params,
-      request.headers,
+      owner,
     );
     // await this._deleteCommentUseCase.execute(request.params, request.headers);
     return h.response({

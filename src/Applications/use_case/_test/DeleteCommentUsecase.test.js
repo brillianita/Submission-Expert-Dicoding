@@ -12,21 +12,11 @@ describe('DeleteCommentUseCase', () => {
       commentId: 'comment-123',
     };
 
-    const token = 'accessToken';
-    const useCaseHeader = {
-      authorization: `Bearer ${token}`,
-    };
     const userId = 'user-123';
 
     const mockCommentRepository = new CommentRepository();
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
-    mockAuthenticationTokenManager.getTokenFromHeader = jest.fn()
-      .mockImplementation(() => Promise.resolve('accessToken'));
-    mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
-      .mockImplementation(() => Promise.resolve({ id: 'user-123' }));
     mockCommentRepository.isCommentExist = jest.fn()
       .mockImplementation(() => Promise.resolve());
     mockCommentRepository.verifyCommentAccess = jest.fn()
@@ -40,13 +30,9 @@ describe('DeleteCommentUseCase', () => {
     });
 
     // action
-    await deleteCommentUseCase.execute(useCaseParam, useCaseHeader);
+    await deleteCommentUseCase.execute(useCaseParam, userId);
 
     // assert
-    expect(mockAuthenticationTokenManager.getTokenFromHeader)
-      .toBeCalledWith(useCaseHeader.authorization);
-    expect(mockAuthenticationTokenManager.verifyAccessToken).toBeCalledWith(token);
-    expect(mockAuthenticationTokenManager.decodePayload).toBeCalledWith(token);
     expect(mockCommentRepository.isCommentExist).toBeCalledWith({
       threadId: useCaseParam.threadId, commentId: useCaseParam.commentId,
     });

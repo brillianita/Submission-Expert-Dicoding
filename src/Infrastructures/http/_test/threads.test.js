@@ -123,7 +123,7 @@ describe('HTTP server', () => {
       // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(401);
-      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.error).toEqual('Unauthorized');
       expect(responseJson.message).toEqual('Missing authentication');
     });
   });

@@ -20,11 +20,6 @@ describe('AddCommentUseCase', () => {
       threadId: 'thread-123',
     };
 
-    const token = 'accessToken';
-    const useCaseHeader = {
-      authorization: `Bearer ${token}`,
-    };
-
     const mockAddedComment = new AddedComment({
       id: 'comment-123',
       content: useCasePayload.content,
@@ -33,31 +28,22 @@ describe('AddCommentUseCase', () => {
     // Creating dependency of use case
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
-    const mockAuthenticationTokenManager = new AuthenticationTokenManager();
     // Mocking needed function
-    mockThreadRepository.getDetailThread = jest.fn()
-      .mockImplementation(() => Promise.resolve());
+    mockThreadRepository.verifyAvailableThread = jest.fn().mockImplementation(() => Promise.resolve());
     mockCommentRepository.addComment = jest.fn()
       .mockImplementation(() => Promise.resolve(mockAddedComment));
-    mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
-      .mockImplementation(() => Promise.resolve());
-    mockAuthenticationTokenManager.getTokenFromHeader = jest.fn()
-      .mockImplementation(() => Promise.resolve(token));
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
-      .mockImplementation(() => Promise.resolve({ username: 'dicoding', id: mockAddedComment.owner }));
 
     // Creating use case instance
     const getCommentUseCase = new AddCommentUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
-      authenticationTokenManager: mockAuthenticationTokenManager,
     });
 
     // Action
     const addedComment = await getCommentUseCase.execute(
       useCasePayload,
       useCaseParam,
-      useCaseHeader,
+      mockAddedComment.owner,
     );
 
     // Assert
@@ -66,10 +52,7 @@ describe('AddCommentUseCase', () => {
       content: mockAddedComment.content,
       owner: mockAddedComment.owner,
     }));
-    expect(mockAuthenticationTokenManager.getTokenFromHeader).toBeCalledWith(useCaseHeader.authorization);
-    expect(mockAuthenticationTokenManager.verifyAccessToken()).resolves.toBeUndefined();
-    expect(mockAuthenticationTokenManager.decodePayload).toBeCalledWith(token);
-    expect(mockThreadRepository.getDetailThread).toBeCalledWith(useCaseParam.threadId);
+    expect(mockThreadRepository.verifyAvailableThread).toBeCalledWith(useCaseParam.threadId);
     expect(mockCommentRepository.addComment).toBeCalledWith(new AddComment({
       content: useCasePayload.content,
       threadId: useCaseParam.threadId,
