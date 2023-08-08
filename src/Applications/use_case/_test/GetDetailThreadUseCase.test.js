@@ -67,21 +67,42 @@ describe('GetDetailThreadUseCase', () => {
     const expectedCommentsByThread = [
       ...mappedComments,
     ];
-
-    const mockThreadRepository = new ThreadRepository();
-    const mockCommentRepository = new CommentRepository();
-
-    mockThreadRepository.getDetailThread = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedDetailThread));
-    mockCommentRepository.getCommentByThreadId = jest.fn()
-      .mockImplementation(() => Promise.resolve(expectedComments));
-    console.log('ini expected detail thread', expectedDetailThread);
-    console.log('ini expected detail comment', expectedComments);
-    console.log('ini expected comment', expectedCommentsByThread);
+    console.log('ini expected comment sebelum mockimplementation', expectedCommentsByThread);
+    const threadRepository = new ThreadRepository();
+    const commentRepository = new CommentRepository();
     const getDetailThreadUseCase = new GetDetailThreadUseCase({
-      threadRepository: mockThreadRepository,
-      commentRepository: mockCommentRepository,
+      threadRepository,
+      commentRepository,
     });
+
+    // threadRepository.getDetailThread = jest.fn(() => Promise.resolve());
+    // commentRepository.getCommentByThreadId = jest.fn(() => Promise.resolve());
+    threadRepository.getDetailThread = jest.fn()
+      .mockImplementation(() => Promise.resolve({
+        id: 'thread-123',
+        title: 'sebuah thread',
+        body: 'isi thread',
+        date: '2021-08-08T07:19:00.775Z',
+        username: 'user-123',
+      }));
+    commentRepository.getCommentByThreadId = jest.fn()
+      .mockImplementation(() => Promise.resolve([
+        {
+          id: 'comment-123',
+          username: 'user1',
+          date: '2021-08-08T07:19:09.775Z',
+          content: 'comment1',
+          is_delete: false,
+        },
+        {
+          id: 'comment-234',
+          username: 'user2',
+          date: '2022-08-08T07:19:09.775Z',
+          content: '**komentar telah dihapus**',
+          is_delete: true,
+        },
+      ]));
+    console.log('ini expected comment setelah mockimplementation', expectedCommentsByThread);
 
     // action
     const useCaseResult = await getDetailThreadUseCase.execute(useCaseParam);
@@ -93,7 +114,7 @@ describe('GetDetailThreadUseCase', () => {
     expect(useCaseResult).toEqual(new DetailThread({
       ...expectedDetailThread, comments: expectedCommentsByThread,
     }));
-    expect(mockThreadRepository.getDetailThread).toBeCalledWith(useCaseParam.threadId);
-    expect(mockCommentRepository.getCommentByThreadId).toBeCalledWith(useCaseParam.threadId);
+    expect(threadRepository.getDetailThread).toBeCalledWith(useCaseParam.threadId);
+    expect(commentRepository.getCommentByThreadId).toBeCalledWith(useCaseParam.threadId);
   });
 });

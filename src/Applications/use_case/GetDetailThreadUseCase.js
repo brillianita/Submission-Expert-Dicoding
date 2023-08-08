@@ -16,6 +16,8 @@ class GetDetailThreadUseCase {
     // // eslint-disable-next-line no-param-reassign
     // objData.forEach((obj) => { delete obj.is_delete; });
     // threadDetail.comments = objData;
+    console.log('commentData', commentData);
+    console.log('ThreadDetail', threadDetail);
     const comments = commentData.map((comment) => ({
       id: comment.id,
       username: comment.username,
