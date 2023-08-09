@@ -10,11 +10,12 @@ describe('AddThreadUseCase', () => {
       title: 'sebuah thread',
       body: 'isi thread',
     };
-
+    const owner = 'user-123';
+    const threadId = 'thread-123';
     const mockAddedThread = new AddedThread({
-      id: 'thread-123',
+      id: threadId,
       title: useCasePayload.title,
-      owner: 'user-123',
+      owner,
     });
 
     // Creating dependency of use case
@@ -34,14 +35,14 @@ describe('AddThreadUseCase', () => {
 
     // Assert
     expect(addedThread).toStrictEqual(new AddedThread({
-      id: mockAddedThread.id,
-      title: mockAddedThread.title,
-      owner: mockAddedThread.owner,
+      id: threadId,
+      title: useCasePayload.title,
+      owner,
     }));
     expect(mockThreadRepository.addThread).toBeCalledWith(new AddThread({
       title: useCasePayload.title,
       body: useCasePayload.body,
-      owner: mockAddedThread.owner,
+      owner,
     }));
   });
 });

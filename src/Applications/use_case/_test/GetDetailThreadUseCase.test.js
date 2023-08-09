@@ -107,13 +107,13 @@ describe('GetDetailThreadUseCase', () => {
     // action
     const useCaseResult = await getDetailThreadUseCase.execute(useCaseParam);
     console.log('usecase result', useCaseResult);
-    console.log('ini new detail thread', new DetailThread({
+    console.log('ini new detail thread', {
       ...expectedDetailThread, comments: expectedCommentsByThread,
-    }));
+    });
     // assert
-    expect(useCaseResult).toEqual(new DetailThread({
+    expect(useCaseResult).toStrictEqual({
       ...expectedDetailThread, comments: expectedCommentsByThread,
-    }));
+    });
     expect(threadRepository.getDetailThread).toBeCalledWith(useCaseParam.threadId);
     expect(commentRepository.getCommentByThreadId).toBeCalledWith(useCaseParam.threadId);
   });

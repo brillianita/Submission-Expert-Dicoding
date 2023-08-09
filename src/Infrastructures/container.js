@@ -250,10 +250,6 @@ container.register([
           name: 'commentRepository',
           internal: CommentRepository.name,
         },
-        {
-          name: 'authenticationTokenManager',
-          internal: AuthenticationTokenManager.name,
-        },
       ],
     },
   },

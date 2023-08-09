@@ -1,7 +1,5 @@
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const DeleteCommentUseCase = require('../DeleteCommentUseCase');
-const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
-const AuthenticationTokenManager = require('../../security/AuthenticationTokenManager');
 
 describe('DeleteCommentUseCase', () => {
   it('should orchestrating the delete comment action correctly', async () => {
@@ -15,7 +13,6 @@ describe('DeleteCommentUseCase', () => {
     const userId = 'user-123';
 
     const mockCommentRepository = new CommentRepository();
-    const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
     mockCommentRepository.isCommentExist = jest.fn()
       .mockImplementation(() => Promise.resolve());
@@ -26,7 +23,6 @@ describe('DeleteCommentUseCase', () => {
 
     const deleteCommentUseCase = new DeleteCommentUseCase({
       commentRepository: mockCommentRepository,
-      authenticationTokenManager: mockAuthenticationTokenManager,
     });
 
     // action
